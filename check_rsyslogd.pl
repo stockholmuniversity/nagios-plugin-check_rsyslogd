@@ -74,7 +74,16 @@ if ($np->opts->get('write')) {
     }
   }
 
-  print Dumper $stats;
+  if (scalar keys $stats > 10) {
+    my %ten_newest;
+    # Copy only the 10 newest
+    for (((reverse sort keys $stats)[0..9])) {
+      $ten_newest{$_} = $stats->{$_};
+    }
+
+    $stats = \%ten_newest;
+    store $stats, $db;
+  }
 }
 
 # Set final status and message
