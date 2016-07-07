@@ -58,7 +58,7 @@ sub make_json {
   }
 }
 
-if ($np->opts->get('write')) {
+if (defined $np->opts->get('write')) {
   unless (-e $db) {
     store $stats, $db;
   }
