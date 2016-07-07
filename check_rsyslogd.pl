@@ -40,7 +40,20 @@ $np->add_arg(
   help => "--write\n   Write rsyslog periodic stats to disk which can be checked. FIXME",
 );
 
+$np->add_arg(
+  spec => 'check:s',
+  help => "--check\n   Check rsyslog periodic stats from disk. (default: %s)",
+  default => "all",
+);
+
 $np->getopts;
+
+# Set the default for check
+if (defined $np->opts->get('check') && $np->opts->get('check') eq "") {
+  for (@{$np->opts->{_args}}) {
+    $np->opts->{check} = $_->{default} if $_->{name} eq "check";
+  }
+}
 
 # Clean up if it contains the whole syslog message and not just the JSON
 sub make_jsonish {
