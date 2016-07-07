@@ -19,7 +19,7 @@ information on how to use thresholds.
 );
 
 my $code;
-my $now = strftime('%F %T', localtime);
+my $now = strftime('%FT%T%z', localtime);
 # FIXME Put in a good place, like /var/tmp/
 my $db = "./knyten";
 
