@@ -58,12 +58,13 @@ sub make_json {
   }
 }
 
-if (defined $np->opts->get('write')) {
-  unless (-e $db) {
-    store $stats, $db;
-  }
-  $stats = retrieve($db);
+# Everyone wants a database!
+unless (-e $db) {
+  store $stats, $db;
+}
+$stats = retrieve($db);
 
+if (defined $np->opts->get('write')) {
   while (<>) {
     make_jsonish;
     make_json;
