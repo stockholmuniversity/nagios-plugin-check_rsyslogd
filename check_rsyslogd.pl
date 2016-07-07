@@ -28,11 +28,13 @@ my $stats = {};
 $np->add_arg(
   spec => 'warning|w=i',
   help => 'Set the warning threshold in INTEGER',
+  default => '100:',
 );
 
 $np->add_arg(
   spec => 'critical|c=i',
   help => 'Set the critical threshold in INTEGER',
+  default => '10:',
 );
 
 $np->add_arg(
