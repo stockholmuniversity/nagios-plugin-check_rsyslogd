@@ -70,19 +70,19 @@ if ($np->opts->get('write')) {
 
     if (defined($_->{name}) && defined($_->{submitted})) {
       $stats->{$now}->{$_->{name}} = $_->{submitted};
+
+      if (scalar keys $stats > 10) {
+        my %ten_newest;
+        # Copy only the 10 newest
+        for (((reverse sort keys $stats)[0..9])) {
+          $ten_newest{$_} = $stats->{$_};
+        }
+
+        $stats = \%ten_newest;
+      }
+
       store $stats, $db;
     }
-  }
-
-  if (scalar keys $stats > 10) {
-    my %ten_newest;
-    # Copy only the 10 newest
-    for (((reverse sort keys $stats)[0..9])) {
-      $ten_newest{$_} = $stats->{$_};
-    }
-
-    $stats = \%ten_newest;
-    store $stats, $db;
   }
 }
 
