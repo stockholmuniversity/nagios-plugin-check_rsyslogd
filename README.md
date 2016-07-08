@@ -35,3 +35,12 @@ if $fromhost-ip == "127.0.0.1" and $programname == "rsyslogd-pstats" then {
   )
 }
 ```
+
+### Naming input modules
+If you are listening on both IPv6 and IPv4 the name in the statistic has the
+same name/key. To avoid this, bind to IPv{6,4} seperately using two inputs and
+name them manually.
+
+There is also inconsistent naming of the input modules in the statistics.
+`imudp` has a setting to append the port to the name but the others don't have
+that setting but append it anyway.
