@@ -7,6 +7,7 @@ use Nagios::Plugin;
 use Storable;
 use Date::Parse;
 use Array::Utils 'intersect';
+use File::Basename 'fileparse';
 use Data::Dumper;
 
 my $np = Nagios::Plugin->new(
@@ -22,8 +23,8 @@ information on how to use thresholds.
 
 my $code;
 my $now = strftime('%FT%T%z', localtime);
-# FIXME Put in a good place, like /var/tmp/
-my $db = "./knyten";
+my ($db, undef) = fileparse($0, qr/\..*?$/);
+$db = "/tmp/$db";
 
 my $stats = {};
 
