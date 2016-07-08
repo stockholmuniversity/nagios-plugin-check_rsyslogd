@@ -22,7 +22,6 @@ information on how to use thresholds.
 );
 
 my $code;
-my $now = strftime('%FT%T%z', localtime);
 my ($db, undef) = fileparse($0, qr/\..*?$/);
 $db = "/tmp/$db";
 
@@ -112,6 +111,7 @@ $stats = retrieve($db);
 
 if (defined $np->opts->get('write')) {
   while (<>) {
+    my $now = strftime('%FT%T%z', localtime);
     make_jsonish;
     make_json;
 
