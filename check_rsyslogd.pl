@@ -98,7 +98,7 @@ sub check_threshold {
     warning => $np->opts->get('warning'),
     critical => $np->opts->get('critical'),
   );
-  $np->add_message($code, "rsyslog $check reported a difference of $difference in ".(str2time($first_date)-str2time($second_date))." seconds");
+  $np->add_message($code, "$check received $difference messages in ".(str2time($first_date)-str2time($second_date))." seconds which is outside the configured threshold.");
 }
 
 # Everyone wants a database!
