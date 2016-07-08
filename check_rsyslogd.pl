@@ -146,6 +146,10 @@ elsif (defined $np->opts->get('check')) {
 
 }
 
+else {
+  exec ($0, "--help");
+}
+
 # Set final status and message
 ($code, my $message) = $np->check_messages();
 $np->nagios_exit($code, $message);
