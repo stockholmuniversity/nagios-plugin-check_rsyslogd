@@ -76,10 +76,19 @@ sub make_json {
   }
 }
 
+sub get_first_dates {
+  ((reverse sort keys $stats)[0..1]);
+}
+
+sub get_checks_from_dates {
+  my ($first_date, $second_date, $check) = @_;
+  map { $stats->{$_}->{$check} } ($first_date, $second_date);
+}
+
 sub check_threshold {
   my ($check) = @_;
-  my ($first_date, $second_date) = ((reverse sort keys $stats)[0..1]);
-  my ($first, $second) = map { $stats->{$_}->{$check} } ($first_date, $second_date);
+  my ($first_date, $second_date) = get_first_dates;
+  my ($first, $second) = get_checks_from_dates($first_date, $second_date, $check);
 
   my $difference = $first-$second;
   # Check so number of log events aren't outside the limits
