@@ -6,6 +6,7 @@ use JSON;
 use Nagios::Plugin;
 use Storable;
 use Date::Parse;
+use Array::Utils 'intersect';
 use Data::Dumper;
 
 my $np = Nagios::Plugin->new(
@@ -135,13 +136,14 @@ if (defined $np->opts->get('write')) {
 }
 
 elsif (defined $np->opts->get('check')) {
-  # FIXME
-  # * If "all" check all and add_message them appropriately
-
   $np->nagios_exit(UNKNOWN, "There are fewer than 2 stats in $db") if scalar keys $stats < 2;
 
   if ($np->opts->get('check') eq $check_default) {
-    print Dumper $stats;
+    my ($first_date, $second_date) = get_first_dates;
+
+    for (intersect(@{[keys($stats->{$first_date})]}, @{[keys $stats->{$second_date}]})) {
+      check_threshold($_);
+    }
   }
   else {
     check_threshold($np->opts->get('check'));
