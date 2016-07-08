@@ -113,26 +113,24 @@ if (defined $np->opts->get('write')) {
     make_jsonish;
     make_json;
 
-    # TODO Also add the queues:
-    # {"name":"om-logstash queue[DA]","origin":"core.queue","size":1553919,"enqueued":0,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":0}
-    # {"name":"om-logstash queue","origin":"core.queue","size":16,"enqueued":16,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":16}
-    # {"name":"main Q[DA]","origin":"core.queue","size":0,"enqueued":0,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":0}
-    # {"name":"main Q","origin":"core.queue","size":15,"enqueued":31,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":15}
     if (defined($_->{name}) && defined($_->{submitted})) {
       $stats->{$now}->{$_->{name}} = $_->{submitted};
+    }
+    elsif (defined($_->{name}) && defined($_->{size})) {
+      $stats->{$now}->{$_->{name}} = $_->{size};
+    }
 
-      if (scalar keys $stats > 10) {
-        my %ten_newest;
-        # Copy only the 10 newest
-        for (((reverse sort keys $stats)[0..9])) {
-          $ten_newest{$_} = $stats->{$_};
-        }
-
-        $stats = \%ten_newest;
+    if (scalar keys $stats > 10) {
+      my %ten_newest;
+      # Copy only the 10 newest
+      for (((reverse sort keys $stats)[0..9])) {
+	$ten_newest{$_} = $stats->{$_};
       }
 
-      store $stats, $db;
+      $stats = \%ten_newest;
     }
+
+    store $stats, $db;
   }
 }
 
