@@ -42,7 +42,7 @@ $np->add_arg(
 
 $np->add_arg(
   spec => 'write',
-  help => "--write\n   Write rsyslog periodic stats to disk which can be checked. FIXME",
+  help => "--write\n   Write rsyslog periodic stats to disk which can be checked.",
 );
 
 $np->add_arg(
