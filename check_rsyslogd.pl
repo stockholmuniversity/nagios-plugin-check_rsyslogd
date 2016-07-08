@@ -5,6 +5,7 @@ use POSIX qw(strftime);
 use JSON;
 use Nagios::Plugin;
 use Storable;
+use Date::Parse;
 use Data::Dumper;
 
 my $np = Nagios::Plugin->new(
@@ -73,6 +74,21 @@ sub make_json {
   }
 }
 
+sub check_threshold {
+  my ($check) = @_;
+  my ($first_date, $second_date) = ((reverse sort keys $stats)[0..1]);
+  my ($first, $second) = map { $stats->{$_}->{$check} } ($first_date, $second_date);
+
+  my $difference = $first-$second;
+  # Check so number of log events aren't outside the limits
+  $code = $np->check_threshold(
+    check => $difference,
+    warning => $np->opts->get('warning'),
+    critical => $np->opts->get('critical'),
+  );
+  $np->add_message($code, "rsyslog $check reported a difference of $difference in ".(str2time($first_date)-str2time($second_date))." seconds");
+}
+
 # Everyone wants a database!
 unless (-e $db) {
   store $stats, $db;
@@ -100,6 +116,18 @@ if (defined $np->opts->get('write')) {
       store $stats, $db;
     }
   }
+}
+
+elsif (defined $np->opts->get('check')) {
+  # FIXME
+  # * If "all" check all and add_message them appropriately
+  # * Else:
+  # ** Get that specific key and check on that
+
+  $np->nagios_exit(UNKNOWN, "There are fewer than 2 stats in $db") if scalar keys $stats < 2;
+
+  check_threshold($np->opts->get('check'));
+
 }
 
 # Set final status and message
