@@ -52,10 +52,12 @@ $np->add_arg(
 $np->getopts;
 
 # Set the default for check
+my $check_default;
+for (@{$np->opts->{_args}}) {
+  $check_default = $_->{default} if $_->{name} eq "check";
+}
 if (defined $np->opts->get('check') && $np->opts->get('check') eq "") {
-  for (@{$np->opts->{_args}}) {
-    $np->opts->{check} = $_->{default} if $_->{name} eq "check";
-  }
+  $np->opts->{check} = $check_default;
 }
 
 # Clean up if it contains the whole syslog message and not just the JSON
@@ -121,12 +123,15 @@ if (defined $np->opts->get('write')) {
 elsif (defined $np->opts->get('check')) {
   # FIXME
   # * If "all" check all and add_message them appropriately
-  # * Else:
-  # ** Get that specific key and check on that
 
   $np->nagios_exit(UNKNOWN, "There are fewer than 2 stats in $db") if scalar keys $stats < 2;
 
-  check_threshold($np->opts->get('check'));
+  if ($np->opts->get('check') eq $check_default) {
+    print Dumper $stats;
+  }
+  else {
+    check_threshold($np->opts->get('check'));
+  }
 
 }
 
