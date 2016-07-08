@@ -102,6 +102,11 @@ if (defined $np->opts->get('write')) {
     make_jsonish;
     make_json;
 
+    # TODO Also add the queues:
+    # {"name":"om-logstash queue[DA]","origin":"core.queue","size":1553919,"enqueued":0,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":0}
+    # {"name":"om-logstash queue","origin":"core.queue","size":16,"enqueued":16,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":16}
+    # {"name":"main Q[DA]","origin":"core.queue","size":0,"enqueued":0,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":0}
+    # {"name":"main Q","origin":"core.queue","size":15,"enqueued":31,"full":0,"discarded.full":0,"discarded.nf":0,"maxqsize":15}
     if (defined($_->{name}) && defined($_->{submitted})) {
       $stats->{$now}->{$_->{name}} = $_->{submitted};
 
