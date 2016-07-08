@@ -15,7 +15,7 @@ my $np = Nagios::Plugin->new(
   version => "1.0",
   timeout => 10,
   extra => qq(
-See <https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT> for
+See <https://www.monitoring-plugins.org/doc/guidelines.html#THRESHOLDFORMAT> for
 information on how to use thresholds.
 ),
 );
