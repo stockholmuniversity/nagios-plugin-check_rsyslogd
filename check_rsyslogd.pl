@@ -48,16 +48,12 @@ $np->add_arg(
 $np->add_arg(
   spec => 'check:s',
   help => "--check\n   Check rsyslog periodic stats from disk. (default: %s)",
-  default => "all",
 );
 
 $np->getopts;
 
 # Set the default for check
-my $check_default;
-for (@{$np->opts->{_args}}) {
-  $check_default = $_->{default} if $_->{name} eq "check";
-}
+my $check_default = "all";
 if (defined $np->opts->get('check') && $np->opts->get('check') eq "") {
   $np->opts->{check} = $check_default;
 }
