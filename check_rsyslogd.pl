@@ -81,7 +81,7 @@ sub make_json {
 }
 
 sub get_first_dates {
-  ((reverse sort keys $stats)[0..1]);
+  ((reverse sort keys %$stats)[0..1]);
 }
 
 sub get_checks_from_dates {
@@ -122,10 +122,10 @@ if (defined $np->opts->get('write')) {
       $stats->{$now}->{$_->{name}} = $_->{size};
     }
 
-    if (scalar keys $stats > 10) {
+    if (scalar keys %$stats > 10) {
       my %ten_newest;
       # Copy only the 10 newest
-      for (((reverse sort keys $stats)[0..9])) {
+      for (((reverse sort keys %$stats)[0..9])) {
 	$ten_newest{$_} = $stats->{$_};
       }
 
@@ -137,12 +137,12 @@ if (defined $np->opts->get('write')) {
 }
 
 elsif (defined $np->opts->get('check')) {
-  $np->nagios_exit(UNKNOWN, "There are fewer than 2 stats in $db") if scalar keys $stats < 2;
+  $np->nagios_exit(UNKNOWN, "There are fewer than 2 stats in $db") if scalar keys %$stats < 2;
 
   if ($np->opts->get('check') eq $check_default) {
     my ($first_date, $second_date) = get_first_dates;
 
-    for (intersect(@{[keys($stats->{$first_date})]}, @{[keys $stats->{$second_date}]})) {
+    for (intersect(@{[keys %{$stats->{$first_date}}]}, @{[keys %{$stats->{$second_date}}]})) {
       check_threshold($_);
     }
   }
@@ -153,10 +153,10 @@ elsif (defined $np->opts->get('check')) {
 }
 
 elsif (defined $np->opts->get('list')) {
-  $np->nagios_exit(UNKNOWN, "You must configure the check in rsyslogd first and it must have ran at least once.") if scalar keys $stats < 1;
+  $np->nagios_exit(UNKNOWN, "You must configure the check in rsyslogd first and it must have ran at least once.") if scalar keys %$stats < 1;
 
   print "Available stats to check:\n";
-  for (keys $stats->{((keys $stats)[0])}) {
+  for (keys %{$stats->{((keys %$stats)[0])}}) {
     print "* $_\n";
   }
 }
