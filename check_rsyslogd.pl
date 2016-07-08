@@ -50,6 +50,12 @@ $np->add_arg(
   help => "--check\n   Check rsyslog periodic stats from disk. (default: %s)",
 );
 
+$np->add_arg(
+  spec => 'list',
+  help => "--list\n   List stats available for checking. You must have configured the check in rsyslogd
+   and it must have ran at least once before running this.",
+);
+
 $np->getopts;
 
 # Set the default for check
@@ -144,6 +150,15 @@ elsif (defined $np->opts->get('check')) {
     check_threshold($np->opts->get('check'));
   }
 
+}
+
+elsif (defined $np->opts->get('list')) {
+  $np->nagios_exit(UNKNOWN, "You must configure the check in rsyslogd first and it must have ran at least once.") if scalar keys $stats < 1;
+
+  print "Available stats to check:\n";
+  for (keys $stats->{((keys $stats)[0])}) {
+    print "* $_\n";
+  }
 }
 
 else {
