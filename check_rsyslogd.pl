@@ -61,6 +61,11 @@ $np->add_arg(
   help => "--ucarp\n   Write ucarp status log to disk which can be checked.",
 );
 
+$np->add_arg(
+  spec => 'check-ucarp',
+  help => "--check-ucarp\n   Check ucarp status log and if we're BACKUP everything is fine.",
+);
+
 $np->getopts;
 
 # Set the default for check
@@ -150,6 +155,19 @@ if (defined $np->opts->get('write')) {
     }
 
     store $stats, $db;
+  }
+}
+
+elsif (defined $np->opts->get('check-ucarp')) {
+  # Check permissions if the file exists
+  if (! -r $ucarp_status) {
+    $np->nagios_exit(CRITICAL, "Can't read \"$ucarp_status\" as user ".getpwuid($<));
+  }
+
+  open (UCARP, "<", $ucarp_status) or die "Can't open \"$ucarp_status\": $!";
+  $_ = <UCARP>;
+  if (/\[INFO\] BACKUP/) {
+    $np->nagios_exit(OK, "We're BACKUP. Everything is fine because we don't get any syslog.");
   }
 }
 
