@@ -24,6 +24,7 @@ information on how to use thresholds.
 my $code;
 my ($db, undef) = fileparse($0, qr/\..*?$/);
 $db = "/tmp/$db";
+my $ucarp_status = "/tmp/ucarp_status";
 
 my $stats = {};
 
@@ -53,6 +54,11 @@ $np->add_arg(
   spec => 'list',
   help => "--list\n   List stats available for checking. You must have configured the check in rsyslogd
    and it must have ran at least once before running this.",
+);
+
+$np->add_arg(
+  spec => 'ucarp',
+  help => "--ucarp\n   Write ucarp status log to disk which can be checked.",
 );
 
 $np->getopts;
@@ -103,15 +109,20 @@ sub check_threshold {
   $np->add_message($code, "$check received $difference messages in ".(str2time($first_date)-str2time($second_date))." seconds which is outside the configured threshold.");
 }
 
+sub check_write_perm {
+  my ($file) = @_;
+  if (! -w $file) {
+    $np->nagios_exit(CRITICAL, "Can't write to \"$file\" as user ".getpwuid($<));
+  }
+}
+
 # Everyone wants a database!
 unless (-e $db) {
   store $stats, $db;
 }
 
 # Check if we can write to the DB
-if (! -w $db) {
-    $np->nagios_exit(CRITICAL, "Can't write to \"$db\" as user ".getpwuid($<));
-}
+check_write_perm($db);
 
 $stats = retrieve($db);
 
@@ -164,6 +175,18 @@ elsif (defined $np->opts->get('list')) {
   print "Available stats to check:\n";
   for (keys %{$stats->{((keys %$stats)[0])}}) {
     print "* $_\n";
+  }
+}
+
+elsif (defined $np->opts->get('ucarp')) {
+  # Check permissions if the file exists
+  check_write_perm($ucarp_status) if -f $ucarp_status;
+
+  # Truncate the file at every write so it's just one line.
+  while (<>) {
+    open (UCARP, ">", $ucarp_status) or die "Can't open \"$ucarp_status\": $!";
+    print UCARP $_;
+    close (UCARP) or die "Can't close \"$ucarp_status\": $!";
   }
 }
 

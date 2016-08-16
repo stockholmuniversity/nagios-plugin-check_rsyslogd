@@ -36,6 +36,23 @@ if $fromhost-ip == "127.0.0.1" and $programname == "rsyslogd-pstats" then {
 }
 ```
 
+### [ucarp](https://www.pureftpd.org/project/ucarp) support and configuration
+
+[ucarp](https://www.pureftpd.org/project/ucarp) is a userland implementation of the [CARP protocol](https://en.wikipedia.org/wiki/Common_Address_Redundancy_Protocol).
+Currently, it has no way to check the status of ucarp except sending a `USR1`
+signal to it which syslogs if it's `MASTER` or `BACKUP`. The `--carp` check
+creates a one line "status" file with the last `[INFO]` message from ucarp.
+
+```
+else if $fromhost-ip == "127.0.0.1" and $programname == "ucarp" and $msg startswith " [INFO]" then {
+  action(
+    name="action-omprog-ucarp-status"
+    type="omprog"
+    binary="/usr/lib/nagios/plugins/check_rsyslogd.pl --ucarp"
+  )
+}
+```
+
 ### Naming input modules
 If you are listening on both IPv6 and IPv4 the name in the statistic has the
 same name/key. To avoid this, bind to IPv{6,4} seperately using two inputs and
