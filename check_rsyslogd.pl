@@ -107,6 +107,12 @@ sub check_threshold {
 unless (-e $db) {
   store $stats, $db;
 }
+
+# Check if we can write to the DB
+if (! -w $db) {
+    $np->nagios_exit(CRITICAL, "Can't write to \"$db\" as user ".getpwuid($<));
+}
+
 $stats = retrieve($db);
 
 if (defined $np->opts->get('write')) {
