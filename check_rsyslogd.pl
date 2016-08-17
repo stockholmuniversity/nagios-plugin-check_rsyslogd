@@ -129,12 +129,20 @@ sub check_read_perm {
   }
 }
 
-# Everyone wants a database!
-unless (-e $db) {
-  store $stats, $db;
+# Read DB and exit if there's an error
+eval {
+  $stats = retrieve($db);
+};
+if ($@) {
+  # We're writing stats, but the DB doesn't exist (well, that's *PROBABLY* the
+  # error at least) so create it.
+  if (defined $np->opts->get('write')) {
+    store $stats, $db;
+  }
+  else {
+    $np->nagios_exit(CRITICAL, "Can't open DB: $@");
+  }
 }
-
-$stats = retrieve($db);
 
 # Get ucarp status beforehand
 if (defined $np->opts->get('check-ucarp')) {
