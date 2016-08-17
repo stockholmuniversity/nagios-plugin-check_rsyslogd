@@ -121,17 +121,24 @@ sub check_write_perm {
   }
 }
 
+sub check_read_perm {
+  my ($file) = @_;
+  if (! -r $file) {
+    $np->nagios_exit(CRITICAL, "Can't read from \"$file\" as user ".getpwuid($<));
+  }
+}
+
 # Everyone wants a database!
 unless (-e $db) {
   store $stats, $db;
 }
 
-# Check if we can write to the DB
-check_write_perm($db);
-
 $stats = retrieve($db);
 
 if (defined $np->opts->get('write')) {
+  # Check if we can write to the DB
+  check_write_perm($db);
+
   while (<>) {
     my $now = strftime('%FT%T%z', localtime);
     make_jsonish;
@@ -172,6 +179,9 @@ elsif (defined $np->opts->get('check-ucarp')) {
 }
 
 elsif (defined $np->opts->get('check')) {
+  # Check if we can read from the DB
+  check_read_perm($db);
+
   $np->nagios_exit(UNKNOWN, "There are fewer than 2 stats in $db") if scalar keys %$stats < 2;
 
   if ($np->opts->get('check') eq $check_default) {
