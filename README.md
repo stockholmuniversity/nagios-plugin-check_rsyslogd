@@ -17,6 +17,8 @@ For more details, see `--help`.
 
 * Check input modules for throughput to see if rsyslogd is receiving any logs
 * Check queues for size/depth to see how big or if you have a backlog.
+* Take [ucarp](https://www.pureftpd.org/project/ucarp) status into account,
+  i.e. don't error out if we're BACKUP because we won't receive any syslog then
 
 ## rsyslogd configuration
 
