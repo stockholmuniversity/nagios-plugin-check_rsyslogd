@@ -24,9 +24,10 @@ information on how to use thresholds.
 my $code;
 my ($db, undef) = fileparse($0, qr/\..*?$/);
 $db = "/tmp/$db";
-my $ucarp_status = "/tmp/ucarp_status";
+my $ucarp_status_file = "/tmp/ucarp_status";
 
 my $stats = {};
+my $ucarp_status;
 
 $np->add_arg(
   spec => 'warning|w=i',
@@ -135,6 +136,16 @@ unless (-e $db) {
 
 $stats = retrieve($db);
 
+# Get ucarp status beforehand
+if (defined $np->opts->get('check-ucarp')) {
+  # Check permissions if the file exists
+  check_read_perm($ucarp_status_file);
+
+  open(UCARP, "<", $ucarp_status_file) or die "Can't open \"$ucarp_status_file\": $!";
+  $ucarp_status = <UCARP>;
+  close(UCARP);
+}
+
 if (defined $np->opts->get('write')) {
   # Check if we can write to the DB
   check_write_perm($db);
@@ -165,17 +176,8 @@ if (defined $np->opts->get('write')) {
   }
 }
 
-elsif (defined $np->opts->get('check-ucarp')) {
-  # Check permissions if the file exists
-  if (! -r $ucarp_status) {
-    $np->nagios_exit(CRITICAL, "Can't read \"$ucarp_status\" as user ".getpwuid($<));
-  }
-
-  open (UCARP, "<", $ucarp_status) or die "Can't open \"$ucarp_status\": $!";
-  $_ = <UCARP>;
-  if (/\[INFO\] BACKUP/) {
-    $np->nagios_exit(OK, "We're BACKUP. Everything is fine because we don't get any syslog.");
-  }
+elsif (defined $np->opts->get('check-ucarp') && $ucarp_status =~ /\[INFO\] BACKUP/) {
+  $np->nagios_exit(OK, "We're BACKUP. Everything is fine because we don't get any syslog.");
 }
 
 elsif (defined $np->opts->get('check')) {
@@ -208,13 +210,13 @@ elsif (defined $np->opts->get('list')) {
 
 elsif (defined $np->opts->get('ucarp')) {
   # Check permissions if the file exists
-  check_write_perm($ucarp_status) if -f $ucarp_status;
+  check_write_perm($ucarp_status_file) if -f $ucarp_status_file;
 
   # Truncate the file at every write so it's just one line.
   while (<>) {
-    open (UCARP, ">", $ucarp_status) or die "Can't open \"$ucarp_status\": $!";
+    open(UCARP, ">", $ucarp_status_file) or die "Can't open \"$ucarp_status_file\": $!";
     print UCARP $_;
-    close (UCARP) or die "Can't close \"$ucarp_status\": $!";
+    close(UCARP) or die "Can't close \"$ucarp_status_file\": $!";
   }
 }
 
