@@ -97,7 +97,12 @@ sub get_first_dates {
 
 sub get_checks_from_dates {
   my ($first_date, $second_date, $check) = @_;
-  map { $stats->{$_}->{$check} } ($first_date, $second_date);
+  map {
+    if (! defined $stats->{$_}->{$check}) {
+      $np->nagios_exit(CRITICAL, "Check \"$check\" doesn't exist in database \"$db\", use --list to see which are available.");
+    }
+    $stats->{$_}->{$check}
+  } ($first_date, $second_date);
 }
 
 sub check_threshold {
