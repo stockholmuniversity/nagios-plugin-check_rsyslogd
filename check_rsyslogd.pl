@@ -3,14 +3,24 @@ use strict;
 use warnings;
 use POSIX qw(strftime);
 use JSON;
-use Nagios::Plugin;
+sub load_module {
+  for my $module (@_) {
+    eval "use $module";
+    return $module if !$@;
+  }
+  die $@;
+}
+my $monitoring_plugin;
+BEGIN {
+  $monitoring_plugin = load_module('Nagios::Plugin', 'Monitoring::Plugin');
+}
 use Storable;
 use Date::Parse;
 use Array::Utils 'intersect';
 use File::Basename 'fileparse';
 use Data::Dumper;
 
-my $np = Nagios::Plugin->new(
+my $np = $monitoring_plugin->new(
   shortname => "#",
 	usage => "Usage: %s [-v|--verbose] [-t <timeout>] [--critical=<value to emit critical>] [--warning=<value to emit warning>] --one-of-the-checks-below",
   version => "1.2.0",
