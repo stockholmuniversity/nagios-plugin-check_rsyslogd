@@ -88,7 +88,7 @@ if (defined $np->opts->get('check') && $np->opts->get('check') eq "") {
 # Clean up if it contains the whole syslog message and not just the JSON
 sub make_jsonish {
   chomp;
-  s/^.*{/{/;
+  s/^.*?{/{/;
 }
 
 sub make_json {
