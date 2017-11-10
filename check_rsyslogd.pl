@@ -40,13 +40,13 @@ my $stats = {};
 my $ucarp_status;
 
 $np->add_arg(
-  spec => 'warning|w=i',
+  spec => 'warning|w=s',
   help => 'Set the warning threshold in INTEGER',
   default => '100:',
 );
 
 $np->add_arg(
-  spec => 'critical|c=i',
+  spec => 'critical|c=s',
   help => 'Set the critical threshold in INTEGER',
   default => '10:',
 );
